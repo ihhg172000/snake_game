@@ -11,7 +11,7 @@ int main(void)
 
 	/* test snake movement */
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		rerender_playground(playground);
 
@@ -19,10 +19,15 @@ int main(void)
 		{
 			change_snake_direction(playground->snake, DOWN);
 			change_snake_direction(playground->snake, UP);
+			grow_snake(&(playground->snake));
 		}
 
+
 		if (i == 10)
+		{
 			change_snake_direction(playground->snake, RIGHT);
+			grow_snake(&(playground->snake));
+		}
 
 		move_snake_forword(playground->snake);
 
