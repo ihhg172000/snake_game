@@ -11,22 +11,22 @@ int main(void)
 
 	/* test snake movement */
 
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 20; i++)
 	{
-		rerender_playground(playground);
+		render_playground(playground);
 
 		if (i == 5)
 		{
 			change_snake_direction(playground->snake, DOWN);
 			change_snake_direction(playground->snake, UP);
-			grow_snake(&(playground->snake));
+			increase_snake(playground->snake);
 		}
 
 
 		if (i == 10)
 		{
 			change_snake_direction(playground->snake, RIGHT);
-			grow_snake(&(playground->snake));
+			increase_snake(playground->snake);
 		}
 
 		move_snake_forword(playground->snake);

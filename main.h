@@ -29,7 +29,7 @@
 
 /* init snake position */
 
-#define INIT_SNAKE_POS_X ((ROWS + COLUMNS) / 8)
+#define INIT_SNAKE_POS_X 1
 #define INIT_SNAKE_POS_Y 1
 
 /* symbols */
@@ -51,19 +51,22 @@ typedef struct point
 	int y;
 } point_t;
 
-typedef struct snake
+typedef struct pointnode
 {
 	point_t *point;
 
-	char prev_direction;
-	char next_direction;
+	struct pointnode *prev;
+	struct pointnode *next;
+} pointnode_t;
 
-	struct snake *next;
-	struct snake *prev;
+typedef struct snake
+{
+	pointnode_t *head;
+	char direction;
 } snake_t;
 
 snake_t *init_snake();
-snake_t *grow_snake(snake_t **snake);
+pointnode_t *increase_snake(snake_t *snake);
 void move_snake_forword(snake_t *snake);
 void change_snake_direction(snake_t *snake, char direction);
 void free_snake(snake_t *snake);
@@ -86,7 +89,7 @@ typedef struct playground
 
 playground_t *init_playground();
 void refresh_playground(playground_t *playground);
-void rerender_playground(playground_t *playground);
+void render_playground(playground_t *playground);
 void free_playground(playground_t *playground);
 
 #endif

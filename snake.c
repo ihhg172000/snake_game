@@ -2,12 +2,20 @@
 
 snake_t *init_snake()
 {
-	snake_t *snake = NULL;
+	snake_t *snake;
 	int i;
 
-	for (i = 1; i <= INIT_SNAKE_POS_X; i++)
+	snake = malloc(sizeof(snake_t));
+
+	if (!snake)
+		return (NULL);
+
+	snake->head = NULL;
+	snake->direction = RIGHT;
+
+	for (i = 0; i < 5; i++)
 	{
-		if (!grow_snake(&snake))
+		if (!increase_snake(snake))
 		{
 			free_snake(snake);
 			return (NULL);
@@ -17,11 +25,11 @@ snake_t *init_snake()
 	return (snake);
 }
 
-snake_t *grow_snake(snake_t **snake)
+pointnode_t *increase_snake(snake_t *snake)
 {
-	snake_t *curr, *new;
+	pointnode_t *new;
 
-	new = malloc(sizeof(snake_t));
+	new = malloc(sizeof(pointnode_t));
 
 	if (!new)
 		return (NULL);
@@ -36,81 +44,82 @@ snake_t *grow_snake(snake_t **snake)
 
 	new->point->x = INIT_SNAKE_POS_X;
 	new->point->y = INIT_SNAKE_POS_Y;
-	new->next_direction = RIGHT;
-	new->prev_direction = RIGHT;
 	new->next = NULL;
 	new->prev = NULL;
 
-	if (!(*snake))
+	if (!(snake->head))
 	{
-		*snake = new;
+		snake->head = new;
 		return (new);
 	}
 
-	curr = *snake;
-
-	while (curr->next)
-		curr = curr->next;
-
-	switch (curr->next_direction)
+	switch (snake->direction)
 	{
 		case RIGHT:
-			new->point->x = (curr->point)->x - 1;
-			new->point->y = curr->point->y;
+			new->point->x = snake->head->point->x + 1;
+			new->point->y = snake->head->point->y;
 			break;
 		case LEFT:
-			new->point->x = curr->point->x + 1;
-			new->point->y = curr->point->y;
+			new->point->x = snake->head->point->x - 1;
+			new->point->y = snake->head->point->y;
 			break;
 		case UP:
-			new->point->x = curr->point->x;
-			new->point->y = curr->point->y + 1;
+			new->point->x = snake->head->point->x;
+			new->point->y = snake->head->point->y - 1;
 			break;
 		case DOWN:
-			new->point->x = curr->point->x;
-			new->point->y = curr->point->y - 1;
+			new->point->x = snake->head->point->x;
+			new->point->y = snake->head->point->y + 1;
 			break;
 		default:
 	}
 
-	new->next_direction = curr->next_direction;
-	new->prev_direction = curr->next_direction;
-	
-	curr->next = new;
-	new->prev = curr;
+	new->next = snake->head;
+	snake->head->prev = new;
+
+	snake->head = new;
 
 	return (new);
 }
 
 void move_snake_forword(snake_t *snake)
 {
-	while (snake)
+	pointnode_t *curr;
+	point_t target_position, current_position;
+
+	target_position.x = snake->head->point->x;
+	target_position.y = snake->head->point->y;
+
+	switch (snake->direction)
 	{
-		switch (snake->next_direction)
-		{
-			case RIGHT:
-				snake->point->x++;
-				break;
-			case LEFT:
-				snake->point->x--;
-				break;
-			case UP:
-				snake->point->y--;
-				break;
-			case DOWN:
-				snake->point->y++;
-				break;
-			default:
-		}
+		case RIGHT:
+			snake->head->point->x++;
+			break;
+		case LEFT:
+			snake->head->point->x--;
+			break;
+		case UP:
+			snake->head->point->y--;
+			break;
+		case DOWN:
+			snake->head->point->y++;
+			break;
+		default:
+	}
 
-		snake->prev_direction = snake->next_direction;
+	curr = snake->head->next;
 
-		if (snake->prev && snake->prev_direction != snake->prev->prev_direction)
-		{
-			snake->next_direction = snake->prev->prev_direction;
-		}
+	while (curr)
+	{
+		current_position.x = curr->point->x;
+		current_position.y = curr->point->y;
 
-		snake = snake->next;
+		curr->point->x = target_position.x;
+		curr->point->y = target_position.y;
+
+		target_position = current_position;
+
+		curr = curr->next;
 	}
 }
 
@@ -120,13 +129,13 @@ void change_snake_direction(snake_t *snake, char direction)
 	{
 		case RIGHT:
 		case LEFT:
-			if (snake->next_direction == UP || snake->next_direction == DOWN)
-				snake->next_direction = direction;
+			if (snake->direction == UP || snake->direction == DOWN)
+				snake->direction = direction;
 			break;
 		case UP:
 		case DOWN:
-			if (snake->next_direction == RIGHT || snake->next_direction == LEFT)
-				snake->next_direction = direction;
+			if (snake->direction == RIGHT || snake->direction == LEFT)
+				snake->direction = direction;
 			break;
 		default:
 	}
@@ -134,13 +143,16 @@ void change_snake_direction(snake_t *snake, char direction)
 
 void free_snake(snake_t *snake)
 {
-	snake_t *next;
+	pointnode_t *next;
 
-	while (snake)
+	while (snake->head)
 	{
-		next = snake->next;
-		free(snake->point);
-		free(snake);
-		snake = next;
+		next = snake->head->next;
+		free(snake->head->point);
+		free(snake->head);
+
+		snake->head = next;
 	}
+
+	free(snake);
 }

@@ -32,7 +32,7 @@ playground_t *init_playground()
 void refresh_playground(playground_t *playground)
 {
 	grid_t *grid;
-	snake_t *snake;
+	pointnode_t *head;
 	int row, column;
 
 	grid = playground->grid;
@@ -55,23 +55,23 @@ void refresh_playground(playground_t *playground)
 		(grid->p)[row][grid->columns - 1] = BLOCK;
 	}
 
-	snake = playground->snake;
+	head = playground->snake->head;
 
-	while (snake)
+	while (head)
 	{
-		point_t *point = snake->point;
+		point_t *point = head->point;
 
-		if (snake->prev)
+		if (head->prev)
 			(grid->p)[point->y][point->x] = SNAKE_BODY;
 		else
 			(grid->p)[point->y][point->x] = SNAKE_HEAD;
 
-		snake = snake->next;
+		head = head->next;
 	}
 
 }
 
-void rerender_playground(playground_t *playground)
+void render_playground(playground_t *playground)
 {
 	int row, column;
 
