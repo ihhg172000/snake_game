@@ -1,95 +1,84 @@
 #include "main.h"
 
-playground_t *init_playground()
+int init_playground(playground_t *playground)
 {
-	playground_t *playground;
+	if (init_snake(&(playground->snake)))
+		return (1);
 
-	playground = malloc(sizeof(playground_t));
-
-	if (!playground)
-		return (NULL);
-
-	playground->grid = init_grid(ROWS, COLUMNS);
-
-	if (!playground->grid)
-	{
-		free(playground);
-		return (NULL);
-	}
-
-	playground->snake = init_snake();
-
-	if (!playground->snake)
-	{
-		free_grid(playground->grid);
-		free(playground);
-		return (NULL);
-	}
-
-	return (playground);
+	return (0);
 }
 
 void refresh_playground(playground_t *playground)
 {
-	grid_t *grid;
 	pointnode_t *head;
-	int row, column;
+	int row, column;;
 
-	grid = playground->grid;
-
-	for (row = 0; row < grid->rows; row++)
+	for (row = 0; row < ROWS; row++)
 	{
-		if (row == 0 || row == grid->rows - 1)
+		if (row == 0 || row == ROWS - 1)
 		{
-			for (column = 0; column < grid->columns; column++)
-				(grid->p)[row][column] = BLOCK;
+			for (column = 0; column < COLUMNS; column++)
+				(playground->grid)[row][column] = BLOCK;
 
 			continue;
 		}
 
-		(grid->p)[row][0] = BLOCK;
+		(playground->grid)[row][0] = BLOCK;
 
-		for (column = 1; column < grid->columns - 1; column++)
-			(grid->p)[row][column] = '\0';
+		for (column = 1; column < COLUMNS - 1; column++)
+			(playground->grid)[row][column] = '\0';
 
-		(grid->p)[row][grid->columns - 1] = BLOCK;
+		(playground->grid)[row][COLUMNS - 1] = BLOCK;
 	}
 
-	head = playground->snake->head;
+	head = playground->snake.head;
 
 	while (head)
 	{
-		point_t *point = head->point;
+		point_t *point = &(head->point);
 
 		if (head->prev)
-			(grid->p)[point->y][point->x] = SNAKE_BODY;
+			(playground->grid)[point->y][point->x] = SNAKE_BODY;
 		else
-			(grid->p)[point->y][point->x] = SNAKE_HEAD;
+		{
+			switch ((playground->grid)[point->y][point->x])
+			{
+				case BLOCK:
+					game_over = true;
+					return;
+				default:
+					(playground->grid)[point->y][point->x] = SNAKE_HEAD;
+			}
+		}
 
 		head = head->next;
 	}
-
 }
 
 void render_playground(playground_t *playground)
 {
 	int row, column;
 
-	system("clear");
+
 	refresh_playground(playground);
 
-	for (row = 0; row < playground->grid->rows; row++)
+	if (game_over)
+		return;
+
+	system("clear");
+
+	for (row = 0; row < ROWS; row++)
 	{
-		for (column = 0; column < playground->grid->columns; column++)
+		for (column = 0; column < COLUMNS; column++)
 		{
 
-			switch ((playground->grid->p)[row][column])
+			switch ((playground->grid)[row][column])
 			{
 				case SNAKE_HEAD:
-					printf(CYN BOX_LIGHT_3 RESET);
+					printf(BOX_LIGHT_3);
 					break;
 				case SNAKE_BODY:
-					printf(CYN BOX RESET);
+					printf(BOX_LIGHT_2);
 					break;
 				case BLOCK:
 					printf(BOX);
@@ -101,11 +90,4 @@ void render_playground(playground_t *playground)
 
 		printf("\n");
 	}
-}
-
-void free_playground(playground_t *playground)
-{
-	free_grid(playground->grid);
-	free_snake(playground->snake);
-	free(playground);
 }

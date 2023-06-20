@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <stdbool.h>
 #include <unistd.h>
+#include <termios.h>
+#include <pthread.h>
 
 /* graphics  */
 
@@ -37,6 +39,7 @@
 #define SNAKE_HEAD '*'
 #define SNAKE_BODY '.'
 #define BLOCK '#'
+#define CLASH '!'
 
 /* direction */
 
@@ -44,6 +47,11 @@
 #define LEFT 'l'
 #define UP 'u'
 #define DOWN 'd'
+
+extern bool game_over;
+
+void terminal_row_mode();
+void terminal_normal_mode();
 
 typedef struct point
 {
@@ -53,11 +61,13 @@ typedef struct point
 
 typedef struct pointnode
 {
-	point_t *point;
+	point_t point;
 
 	struct pointnode *prev;
 	struct pointnode *next;
 } pointnode_t;
+
+void free_pointlist(pointnode_t *head);
 
 typedef struct snake
 {
@@ -65,31 +75,22 @@ typedef struct snake
 	char direction;
 } snake_t;
 
-snake_t *init_snake();
-pointnode_t *increase_snake(snake_t *snake);
+int init_snake();
+int increase_snake(snake_t *snake);
 void move_snake_forword(snake_t *snake);
 void change_snake_direction(snake_t *snake, char direction);
-void free_snake(snake_t *snake);
-
-typedef struct grid
-{
-	char **p;
-	int rows;
-	int columns;
-} grid_t;
-
-grid_t *init_grid(int rows, int columns);
-void free_grid(grid_t *grid);
 
 typedef struct playground
 {
-	grid_t *grid;
-	snake_t *snake;
+	char grid[ROWS][COLUMNS];
+	snake_t snake;
 } playground_t;
 
-playground_t *init_playground();
+int init_playground(playground_t *playground);
 void refresh_playground(playground_t *playground);
 void render_playground(playground_t *playground);
-void free_playground(playground_t *playground);
+
+void *keys_handler(void *playground);
+void *render_handler(void *playground);
 
 #endif

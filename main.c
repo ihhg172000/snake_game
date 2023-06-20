@@ -1,42 +1,30 @@
 #include "main.h"
 
+bool game_over = false;
+
 int main(void)
 {
-	playground_t *playground;
+	playground_t playground;
+	pthread_t keys_thread;
 
-	playground = init_playground();
-
-	if (!playground)
+	if (init_playground(&playground))
 		exit(EXIT_FAILURE);
 
-	/* test snake movement */
+	terminal_row_mode();
 
-	for (int i = 0; i < 20; i++)
-	{
-		render_playground(playground);
+	if (pthread_create(&keys_thread, NULL, &keys_handler, (void *) &playground) != 0)
+		exit(EXIT_FAILURE);
 
-		if (i == 5)
-		{
-			change_snake_direction(playground->snake, DOWN);
-			change_snake_direction(playground->snake, UP);
-			increase_snake(playground->snake);
-		}
+	render_handler(&playground);	
 
+	if (pthread_join(keys_thread, NULL) != 0)
+		exit(EXIT_FAILURE);
 
-		if (i == 10)
-		{
-			change_snake_direction(playground->snake, RIGHT);
-			increase_snake(playground->snake);
-		}
+	terminal_normal_mode();
 
-		move_snake_forword(playground->snake);
+	free_pointlist(playground.snake.head);
 
-		usleep(100000);
-	}
-
-	/* ____________________ */
-
-	free_playground(playground);
+	system("clear");
 
 	return (EXIT_SUCCESS);
 }
