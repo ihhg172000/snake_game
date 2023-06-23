@@ -1,5 +1,6 @@
 #include "main.h"
 
+unsigned int score = 0; 
 bool game_over = false;
 
 int main(void)

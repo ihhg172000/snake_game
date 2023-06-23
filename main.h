@@ -8,6 +8,7 @@
 #include <termios.h>
 #include <pthread.h>
 #include <time.h>
+#include "art.h"
 
 /* graphics  */
 
@@ -28,7 +29,7 @@
 /* playground dimensions */
 
 #define ROWS 20
-#define COLUMNS 40
+#define COLUMNS 41
 
 /* init snake position */
 
@@ -49,6 +50,7 @@
 #define UP 'u'
 #define DOWN 'd'
 
+extern unsigned int score;
 extern bool game_over;
 
 void terminal_row_mode();
@@ -91,6 +93,8 @@ typedef struct playground
 int init_playground(playground_t *playground);
 void refresh_playground(playground_t *playground);
 void render_playground(playground_t *playground);
+
+void random_food(point_t *food);
 
 void *keys_handler(void *playground);
 void *render_handler(void *playground);

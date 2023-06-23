@@ -5,6 +5,8 @@ int init_playground(playground_t *playground)
 	if (init_snake(&(playground->snake)))
 		return (1);
 
+	random_food(&(playground->food));
+
 	return (0);
 }
 
@@ -53,6 +55,21 @@ void refresh_playground(playground_t *playground)
 
 		head = head->next;
 	}
+
+	point_t *food = &(playground->food);
+
+	while ((playground->grid)[food->y][food->x])
+	{
+		switch ((playground->grid)[food->y][food->x])
+		{ 
+			case SNAKE_HEAD:
+				score++;
+				increase_snake(&(playground->snake));
+				random_food(food);
+		}
+	}
+
+	(playground->grid)[food->y][food->x] = FOOD;
 }
 
 void render_playground(playground_t *playground)
@@ -65,6 +82,8 @@ void render_playground(playground_t *playground)
 		return;
 
 	system("clear");
+
+	print_number(score);
 
 	for (row = 0; row < ROWS; row++)
 	{
@@ -81,6 +100,9 @@ void render_playground(playground_t *playground)
 					break;
 				case BLOCK:
 					printf(BOX);
+					break;
+				case FOOD:
+					printf(GRN BOX_LIGHT_3 RESET);
 					break;
 				default:
 					printf(BOX_LIGHT_1);
