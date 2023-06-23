@@ -59,7 +59,6 @@ void render_playground(playground_t *playground)
 {
 	int row, column;
 
-
 	refresh_playground(playground);
 
 	if (game_over)

@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <pthread.h>
+#include <time.h>
 
 /* graphics  */
 
@@ -26,8 +27,8 @@
 
 /* playground dimensions */
 
-#define ROWS 16
-#define COLUMNS 32
+#define ROWS 20
+#define COLUMNS 40
 
 /* init snake position */
 
@@ -39,7 +40,7 @@
 #define SNAKE_HEAD '*'
 #define SNAKE_BODY '.'
 #define BLOCK '#'
-#define CLASH '!'
+#define FOOD '$'
 
 /* direction */
 
@@ -84,6 +85,7 @@ typedef struct playground
 {
 	char grid[ROWS][COLUMNS];
 	snake_t snake;
+	point_t food;
 } playground_t;
 
 int init_playground(playground_t *playground);

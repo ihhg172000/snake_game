@@ -7,6 +7,8 @@ int main(void)
 	playground_t playground;
 	pthread_t keys_thread;
 
+	srand(time(NULL));
+
 	if (init_playground(&playground))
 		exit(EXIT_FAILURE);
 
