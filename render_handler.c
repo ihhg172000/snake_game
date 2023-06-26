@@ -3,10 +3,10 @@
 void *render_handler(void *playground)
 {
 	playground_t *pg = (playground_t *) playground;
-	while (!game_over)
+	while (!status.game_over)
 	{
 		render_playground(pg);
-		move_snake_forword(&(pg->snake));
+		move_snake(&(pg->snake));
 		usleep(100000);
 	}
 

@@ -1,12 +1,14 @@
 #include "main.h"
 
-unsigned int score = 0; 
-bool game_over = false;
+status_t status;
 
 int main(void)
 {
 	playground_t playground;
 	pthread_t keys_thread;
+
+	status.score = 0;
+	status.game_over = false;
 
 	srand(time(NULL));
 
@@ -25,7 +27,7 @@ int main(void)
 
 	terminal_normal_mode();
 
-	free_pointlist(playground.snake.head);
+	free_points(playground.snake.head);
 
 	system("clear");
 

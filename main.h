@@ -10,6 +10,7 @@
 #include <time.h>
 #include "art.h"
 
+
 /* graphics  */
 
 #define RED   "\x1B[31m"
@@ -26,15 +27,18 @@
 #define BOX_LIGHT_2 "\u2592\u2592"
 #define BOX_LIGHT_1 "\u2591\u2591"
 
+
 /* playground dimensions */
 
 #define ROWS 20
 #define COLUMNS 41
 
-/* init snake position */
 
-#define INIT_SNAKE_POS_X 1
+/* init snake position & size */
+
 #define INIT_SNAKE_POS_Y 1
+#define INIT_SNAKE_POS_X 1
+#define INIT_SNAKE_SIZE 5
 
 /* symbols */
 
@@ -43,18 +47,19 @@
 #define BLOCK '#'
 #define FOOD '$'
 
-/* direction */
 
-#define RIGHT 'r'
-#define LEFT 'l'
-#define UP 'u'
-#define DOWN 'd'
+/* status */
 
-extern unsigned int score;
-extern bool game_over;
+typedef struct status_s
+{
+	unsigned int score;
+	bool game_over;
+} status_t;
 
-void terminal_row_mode();
-void terminal_normal_mode();
+extern status_t status;
+
+
+/* points */
 
 typedef struct point
 {
@@ -62,28 +67,50 @@ typedef struct point
 	int y;
 } point_t;
 
-typedef struct pointnode
+typedef struct pointnode_s
 {
 	point_t point;
 
-	struct pointnode *prev;
-	struct pointnode *next;
+	struct pointnode_s *prev;
+	struct pointnode_s *next;
 } pointnode_t;
 
-void free_pointlist(pointnode_t *head);
+pointnode_t *new_point(int y, int x);
+void free_points(pointnode_t *head);
 
-typedef struct snake
+
+/* snake */
+
+typedef enum
+{
+	RIGHT,
+	LEFT,
+	UP,
+	DOWN
+} direction_t;
+
+typedef struct snake_s
 {
 	pointnode_t *head;
-	char direction;
+	pointnode_t *tail;
+	direction_t requested_direction;
+	direction_t direction;
 } snake_t;
 
 int init_snake();
 int increase_snake(snake_t *snake);
-void move_snake_forword(snake_t *snake);
-void change_snake_direction(snake_t *snake, char direction);
+void move_snake(snake_t *snake);
+void change_snake_direction(snake_t *snake, direction_t direction);
 
-typedef struct playground
+
+/* food */
+
+void random_food(point_t *food);
+
+
+/* playground */
+
+typedef struct playground_s
 {
 	char grid[ROWS][COLUMNS];
 	snake_t snake;
@@ -91,12 +118,20 @@ typedef struct playground
 } playground_t;
 
 int init_playground(playground_t *playground);
+void clear_playground(playground_t *playground);
 void refresh_playground(playground_t *playground);
 void render_playground(playground_t *playground);
 
-void random_food(point_t *food);
+
+/* terminal mode */
+
+void terminal_row_mode();
+void terminal_normal_mode();
+
+
+/* handlers */
 
 void *keys_handler(void *playground);
 void *render_handler(void *playground);
 
-#endif
+#endif /* MAIN_H */

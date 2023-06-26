@@ -14,7 +14,7 @@ void *keys_handler(void *playground)
 
 		if (keys(pg, ch))
 		{
-			game_over = true;
+			status.game_over = true;
 			return (NULL);
 		}
 	}

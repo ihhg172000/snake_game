@@ -2,18 +2,19 @@
 
 int init_snake(snake_t *snake)
 {
-	int i;
-
 	snake->head = NULL;
+	snake->requested_direction = RIGHT;
 	snake->direction = RIGHT;
 
-	for (i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		if (increase_snake(snake))
 		{
-			free_pointlist(snake->head);
+			free_points(snake->head);
 			return (1);
 		}
+
+		move_snake(snake);
 	}
 
 	return (0);
@@ -23,52 +24,47 @@ int increase_snake(snake_t *snake)
 {
 	pointnode_t *new;
 
-	new = malloc(sizeof(pointnode_t));
+	new = new_point(INIT_SNAKE_POS_Y, INIT_SNAKE_POS_X);
 
 	if (!new)
 		return (1);
 
-	new->point.x = INIT_SNAKE_POS_X;
-	new->point.y = INIT_SNAKE_POS_Y;
-	new->next = NULL;
-	new->prev = NULL;
-
 	if (!(snake->head))
 	{
 		snake->head = new;
+		snake->tail = new;
 		return (0);
 	}
 
 	switch (snake->direction)
 	{
 		case RIGHT:
-			new->point.x = snake->head->point.x + 1;
-			new->point.y = snake->head->point.y;
+			new->point.x = snake->tail->point.x - 1;
+			new->point.y = snake->tail->point.y;
 			break;
 		case LEFT:
-			new->point.x = snake->head->point.x - 1;
-			new->point.y = snake->head->point.y;
+			new->point.x = snake->tail->point.x + 1;
+			new->point.y = snake->tail->point.y;
 			break;
 		case UP:
-			new->point.x = snake->head->point.x;
-			new->point.y = snake->head->point.y - 1;
+			new->point.x = snake->tail->point.x;
+			new->point.y = snake->tail->point.y + 1;
 			break;
 		case DOWN:
-			new->point.x = snake->head->point.x;
-			new->point.y = snake->head->point.y + 1;
+			new->point.x = snake->tail->point.x;
+			new->point.y = snake->tail->point.y - 1;
 			break;
-		default:
 	}
 
-	new->next = snake->head;
-	snake->head->prev = new;
+	snake->tail->next = new;
+	new->prev = snake->tail;
 
-	snake->head = new;
+	snake->tail = new;
 
 	return (0);
 }
 
-void move_snake_forword(snake_t *snake)
+void move_snake(snake_t *snake)
 {
 	pointnode_t *curr;
 	point_t target_position, current_position;
@@ -76,7 +72,7 @@ void move_snake_forword(snake_t *snake)
 	target_position.x = snake->head->point.x;
 	target_position.y = snake->head->point.y;
 
-	switch (snake->direction)
+	switch (snake->requested_direction)
 	{
 		case RIGHT:
 			snake->head->point.x++;
@@ -90,8 +86,9 @@ void move_snake_forword(snake_t *snake)
 		case DOWN:
 			snake->head->point.y++;
 			break;
-		default:
 	}
+
+	snake->direction = snake->requested_direction;
 
 	curr = snake->head->next;
 
@@ -109,32 +106,18 @@ void move_snake_forword(snake_t *snake)
 	}
 }
 
-void change_snake_direction(snake_t *snake, char direction)
+void change_snake_direction(snake_t *snake, direction_t direction)
 {
 	switch (direction)
 	{
 		case RIGHT:
 		case LEFT:
 			if (snake->direction == UP || snake->direction == DOWN)
-				snake->direction = direction;
+				snake->requested_direction = direction;
 			break;
 		case UP:
 		case DOWN:
 			if (snake->direction == RIGHT || snake->direction == LEFT)
-				snake->direction = direction;
-			break;
-		default:
-	}
-}
-
-void free_pointlist(pointnode_t *head)
-{
-	pointnode_t *next;
-
-	while (head)
-	{
-		next = head->next;
-		free(head);
-		head = next;
+				snake->requested_direction = direction;
 	}
 }
